@@ -48,52 +48,6 @@ var DistrictTableColumns = struct {
 
 // Generated where
 
-type whereHelperint struct{ field string }
-
-func (w whereHelperint) EQ(x int) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.EQ, x) }
-func (w whereHelperint) NEQ(x int) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.NEQ, x) }
-func (w whereHelperint) LT(x int) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.LT, x) }
-func (w whereHelperint) LTE(x int) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.LTE, x) }
-func (w whereHelperint) GT(x int) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.GT, x) }
-func (w whereHelperint) GTE(x int) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.GTE, x) }
-func (w whereHelperint) IN(slice []int) qm.QueryMod {
-	values := make([]interface{}, 0, len(slice))
-	for _, value := range slice {
-		values = append(values, value)
-	}
-	return qm.WhereIn(fmt.Sprintf("%s IN ?", w.field), values...)
-}
-func (w whereHelperint) NIN(slice []int) qm.QueryMod {
-	values := make([]interface{}, 0, len(slice))
-	for _, value := range slice {
-		values = append(values, value)
-	}
-	return qm.WhereNotIn(fmt.Sprintf("%s NOT IN ?", w.field), values...)
-}
-
-type whereHelperstring struct{ field string }
-
-func (w whereHelperstring) EQ(x string) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.EQ, x) }
-func (w whereHelperstring) NEQ(x string) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.NEQ, x) }
-func (w whereHelperstring) LT(x string) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.LT, x) }
-func (w whereHelperstring) LTE(x string) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.LTE, x) }
-func (w whereHelperstring) GT(x string) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.GT, x) }
-func (w whereHelperstring) GTE(x string) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.GTE, x) }
-func (w whereHelperstring) IN(slice []string) qm.QueryMod {
-	values := make([]interface{}, 0, len(slice))
-	for _, value := range slice {
-		values = append(values, value)
-	}
-	return qm.WhereIn(fmt.Sprintf("%s IN ?", w.field), values...)
-}
-func (w whereHelperstring) NIN(slice []string) qm.QueryMod {
-	values := make([]interface{}, 0, len(slice))
-	for _, value := range slice {
-		values = append(values, value)
-	}
-	return qm.WhereNotIn(fmt.Sprintf("%s NOT IN ?", w.field), values...)
-}
-
 var DistrictWhere = struct {
 	ID   whereHelperint
 	Name whereHelperstring
@@ -104,15 +58,26 @@ var DistrictWhere = struct {
 
 // DistrictRels is where relationship names are stored.
 var DistrictRels = struct {
-}{}
+	Blocks string
+}{
+	Blocks: "Blocks",
+}
 
 // districtR is where relationships are stored.
 type districtR struct {
+	Blocks BlockSlice `boil:"Blocks" json:"Blocks" toml:"Blocks" yaml:"Blocks"`
 }
 
 // NewStruct creates a new relationship struct
 func (*districtR) NewStruct() *districtR {
 	return &districtR{}
+}
+
+func (r *districtR) GetBlocks() BlockSlice {
+	if r == nil {
+		return nil
+	}
+	return r.Blocks
 }
 
 // districtL is where Load methods for each relationship are stored.
@@ -332,6 +297,11 @@ func AddDistrictHook(hookPoint boil.HookPoint, districtHook DistrictHook) {
 	}
 }
 
+// OneG returns a single district record from the query using the global executor.
+func (q districtQuery) OneG(ctx context.Context) (*District, error) {
+	return q.One(ctx, boil.GetContextDB())
+}
+
 // One returns a single district record from the query.
 func (q districtQuery) One(ctx context.Context, exec boil.ContextExecutor) (*District, error) {
 	o := &District{}
@@ -351,6 +321,11 @@ func (q districtQuery) One(ctx context.Context, exec boil.ContextExecutor) (*Dis
 	}
 
 	return o, nil
+}
+
+// AllG returns all District records from the query using the global executor.
+func (q districtQuery) AllG(ctx context.Context) (DistrictSlice, error) {
+	return q.All(ctx, boil.GetContextDB())
 }
 
 // All returns all District records from the query.
@@ -373,6 +348,11 @@ func (q districtQuery) All(ctx context.Context, exec boil.ContextExecutor) (Dist
 	return o, nil
 }
 
+// CountG returns the count of all District records in the query using the global executor
+func (q districtQuery) CountG(ctx context.Context) (int64, error) {
+	return q.Count(ctx, boil.GetContextDB())
+}
+
 // Count returns the count of all District records in the query.
 func (q districtQuery) Count(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
 	var count int64
@@ -386,6 +366,11 @@ func (q districtQuery) Count(ctx context.Context, exec boil.ContextExecutor) (in
 	}
 
 	return count, nil
+}
+
+// ExistsG checks if the row exists in the table using the global executor.
+func (q districtQuery) ExistsG(ctx context.Context) (bool, error) {
+	return q.Exists(ctx, boil.GetContextDB())
 }
 
 // Exists checks if the row exists in the table.
@@ -404,6 +389,289 @@ func (q districtQuery) Exists(ctx context.Context, exec boil.ContextExecutor) (b
 	return count > 0, nil
 }
 
+// Blocks retrieves all the block's Blocks with an executor.
+func (o *District) Blocks(mods ...qm.QueryMod) blockQuery {
+	var queryMods []qm.QueryMod
+	if len(mods) != 0 {
+		queryMods = append(queryMods, mods...)
+	}
+
+	queryMods = append(queryMods,
+		qm.Where("\"blocks\".\"district_id\"=?", o.ID),
+	)
+
+	return Blocks(queryMods...)
+}
+
+// LoadBlocks allows an eager lookup of values, cached into the
+// loaded structs of the objects. This is for a 1-M or N-M relationship.
+func (districtL) LoadBlocks(ctx context.Context, e boil.ContextExecutor, singular bool, maybeDistrict interface{}, mods queries.Applicator) error {
+	var slice []*District
+	var object *District
+
+	if singular {
+		var ok bool
+		object, ok = maybeDistrict.(*District)
+		if !ok {
+			object = new(District)
+			ok = queries.SetFromEmbeddedStruct(&object, &maybeDistrict)
+			if !ok {
+				return errors.New(fmt.Sprintf("failed to set %T from embedded struct %T", object, maybeDistrict))
+			}
+		}
+	} else {
+		s, ok := maybeDistrict.(*[]*District)
+		if ok {
+			slice = *s
+		} else {
+			ok = queries.SetFromEmbeddedStruct(&slice, maybeDistrict)
+			if !ok {
+				return errors.New(fmt.Sprintf("failed to set %T from embedded struct %T", slice, maybeDistrict))
+			}
+		}
+	}
+
+	args := make([]interface{}, 0, 1)
+	if singular {
+		if object.R == nil {
+			object.R = &districtR{}
+		}
+		args = append(args, object.ID)
+	} else {
+	Outer:
+		for _, obj := range slice {
+			if obj.R == nil {
+				obj.R = &districtR{}
+			}
+
+			for _, a := range args {
+				if queries.Equal(a, obj.ID) {
+					continue Outer
+				}
+			}
+
+			args = append(args, obj.ID)
+		}
+	}
+
+	if len(args) == 0 {
+		return nil
+	}
+
+	query := NewQuery(
+		qm.From(`blocks`),
+		qm.WhereIn(`blocks.district_id in ?`, args...),
+	)
+	if mods != nil {
+		mods.Apply(query)
+	}
+
+	results, err := query.QueryContext(ctx, e)
+	if err != nil {
+		return errors.Wrap(err, "failed to eager load blocks")
+	}
+
+	var resultSlice []*Block
+	if err = queries.Bind(results, &resultSlice); err != nil {
+		return errors.Wrap(err, "failed to bind eager loaded slice blocks")
+	}
+
+	if err = results.Close(); err != nil {
+		return errors.Wrap(err, "failed to close results in eager load on blocks")
+	}
+	if err = results.Err(); err != nil {
+		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for blocks")
+	}
+
+	if len(blockAfterSelectHooks) != 0 {
+		for _, obj := range resultSlice {
+			if err := obj.doAfterSelectHooks(ctx, e); err != nil {
+				return err
+			}
+		}
+	}
+	if singular {
+		object.R.Blocks = resultSlice
+		for _, foreign := range resultSlice {
+			if foreign.R == nil {
+				foreign.R = &blockR{}
+			}
+			foreign.R.District = object
+		}
+		return nil
+	}
+
+	for _, foreign := range resultSlice {
+		for _, local := range slice {
+			if queries.Equal(local.ID, foreign.DistrictID) {
+				local.R.Blocks = append(local.R.Blocks, foreign)
+				if foreign.R == nil {
+					foreign.R = &blockR{}
+				}
+				foreign.R.District = local
+				break
+			}
+		}
+	}
+
+	return nil
+}
+
+// AddBlocksG adds the given related objects to the existing relationships
+// of the district, optionally inserting them as new records.
+// Appends related to o.R.Blocks.
+// Sets related.R.District appropriately.
+// Uses the global database handle.
+func (o *District) AddBlocksG(ctx context.Context, insert bool, related ...*Block) error {
+	return o.AddBlocks(ctx, boil.GetContextDB(), insert, related...)
+}
+
+// AddBlocks adds the given related objects to the existing relationships
+// of the district, optionally inserting them as new records.
+// Appends related to o.R.Blocks.
+// Sets related.R.District appropriately.
+func (o *District) AddBlocks(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*Block) error {
+	var err error
+	for _, rel := range related {
+		if insert {
+			queries.Assign(&rel.DistrictID, o.ID)
+			if err = rel.Insert(ctx, exec, boil.Infer()); err != nil {
+				return errors.Wrap(err, "failed to insert into foreign table")
+			}
+		} else {
+			updateQuery := fmt.Sprintf(
+				"UPDATE \"blocks\" SET %s WHERE %s",
+				strmangle.SetParamNames("\"", "\"", 1, []string{"district_id"}),
+				strmangle.WhereClause("\"", "\"", 2, blockPrimaryKeyColumns),
+			)
+			values := []interface{}{o.ID, rel.ID}
+
+			if boil.IsDebug(ctx) {
+				writer := boil.DebugWriterFrom(ctx)
+				fmt.Fprintln(writer, updateQuery)
+				fmt.Fprintln(writer, values)
+			}
+			if _, err = exec.ExecContext(ctx, updateQuery, values...); err != nil {
+				return errors.Wrap(err, "failed to update foreign table")
+			}
+
+			queries.Assign(&rel.DistrictID, o.ID)
+		}
+	}
+
+	if o.R == nil {
+		o.R = &districtR{
+			Blocks: related,
+		}
+	} else {
+		o.R.Blocks = append(o.R.Blocks, related...)
+	}
+
+	for _, rel := range related {
+		if rel.R == nil {
+			rel.R = &blockR{
+				District: o,
+			}
+		} else {
+			rel.R.District = o
+		}
+	}
+	return nil
+}
+
+// SetBlocksG removes all previously related items of the
+// district replacing them completely with the passed
+// in related items, optionally inserting them as new records.
+// Sets o.R.District's Blocks accordingly.
+// Replaces o.R.Blocks with related.
+// Sets related.R.District's Blocks accordingly.
+// Uses the global database handle.
+func (o *District) SetBlocksG(ctx context.Context, insert bool, related ...*Block) error {
+	return o.SetBlocks(ctx, boil.GetContextDB(), insert, related...)
+}
+
+// SetBlocks removes all previously related items of the
+// district replacing them completely with the passed
+// in related items, optionally inserting them as new records.
+// Sets o.R.District's Blocks accordingly.
+// Replaces o.R.Blocks with related.
+// Sets related.R.District's Blocks accordingly.
+func (o *District) SetBlocks(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*Block) error {
+	query := "update \"blocks\" set \"district_id\" = null where \"district_id\" = $1"
+	values := []interface{}{o.ID}
+	if boil.IsDebug(ctx) {
+		writer := boil.DebugWriterFrom(ctx)
+		fmt.Fprintln(writer, query)
+		fmt.Fprintln(writer, values)
+	}
+	_, err := exec.ExecContext(ctx, query, values...)
+	if err != nil {
+		return errors.Wrap(err, "failed to remove relationships before set")
+	}
+
+	if o.R != nil {
+		for _, rel := range o.R.Blocks {
+			queries.SetScanner(&rel.DistrictID, nil)
+			if rel.R == nil {
+				continue
+			}
+
+			rel.R.District = nil
+		}
+		o.R.Blocks = nil
+	}
+
+	return o.AddBlocks(ctx, exec, insert, related...)
+}
+
+// RemoveBlocksG relationships from objects passed in.
+// Removes related items from R.Blocks (uses pointer comparison, removal does not keep order)
+// Sets related.R.District.
+// Uses the global database handle.
+func (o *District) RemoveBlocksG(ctx context.Context, related ...*Block) error {
+	return o.RemoveBlocks(ctx, boil.GetContextDB(), related...)
+}
+
+// RemoveBlocks relationships from objects passed in.
+// Removes related items from R.Blocks (uses pointer comparison, removal does not keep order)
+// Sets related.R.District.
+func (o *District) RemoveBlocks(ctx context.Context, exec boil.ContextExecutor, related ...*Block) error {
+	if len(related) == 0 {
+		return nil
+	}
+
+	var err error
+	for _, rel := range related {
+		queries.SetScanner(&rel.DistrictID, nil)
+		if rel.R != nil {
+			rel.R.District = nil
+		}
+		if _, err = rel.Update(ctx, exec, boil.Whitelist("district_id")); err != nil {
+			return err
+		}
+	}
+	if o.R == nil {
+		return nil
+	}
+
+	for _, rel := range related {
+		for i, ri := range o.R.Blocks {
+			if rel != ri {
+				continue
+			}
+
+			ln := len(o.R.Blocks)
+			if ln > 1 && i < ln-1 {
+				o.R.Blocks[i] = o.R.Blocks[ln-1]
+			}
+			o.R.Blocks = o.R.Blocks[:ln-1]
+			break
+		}
+	}
+
+	return nil
+}
+
 // Districts retrieves all the records using an executor.
 func Districts(mods ...qm.QueryMod) districtQuery {
 	mods = append(mods, qm.From("\"districts\""))
@@ -413,6 +681,11 @@ func Districts(mods ...qm.QueryMod) districtQuery {
 	}
 
 	return districtQuery{q}
+}
+
+// FindDistrictG retrieves a single record by ID.
+func FindDistrictG(ctx context.Context, iD int, selectCols ...string) (*District, error) {
+	return FindDistrict(ctx, boil.GetContextDB(), iD, selectCols...)
 }
 
 // FindDistrict retrieves a single record by ID with an executor.
@@ -443,6 +716,11 @@ func FindDistrict(ctx context.Context, exec boil.ContextExecutor, iD int, select
 	}
 
 	return districtObj, nil
+}
+
+// InsertG a single record. See Insert for whitelist behavior description.
+func (o *District) InsertG(ctx context.Context, columns boil.Columns) error {
+	return o.Insert(ctx, boil.GetContextDB(), columns)
 }
 
 // Insert a single record using an executor.
@@ -524,6 +802,12 @@ func (o *District) Insert(ctx context.Context, exec boil.ContextExecutor, column
 	return o.doAfterInsertHooks(ctx, exec)
 }
 
+// UpdateG a single District record using the global executor.
+// See Update for more documentation.
+func (o *District) UpdateG(ctx context.Context, columns boil.Columns) (int64, error) {
+	return o.Update(ctx, boil.GetContextDB(), columns)
+}
+
 // Update uses an executor to update the District.
 // See boil.Columns.UpdateColumnSet documentation to understand column list inference for updates.
 // Update does not automatically update the record in case of default values. Use .Reload() to refresh the records.
@@ -587,6 +871,11 @@ func (o *District) Update(ctx context.Context, exec boil.ContextExecutor, column
 	return rowsAff, o.doAfterUpdateHooks(ctx, exec)
 }
 
+// UpdateAllG updates all rows with the specified column values.
+func (q districtQuery) UpdateAllG(ctx context.Context, cols M) (int64, error) {
+	return q.UpdateAll(ctx, boil.GetContextDB(), cols)
+}
+
 // UpdateAll updates all rows with the specified column values.
 func (q districtQuery) UpdateAll(ctx context.Context, exec boil.ContextExecutor, cols M) (int64, error) {
 	queries.SetUpdate(q.Query, cols)
@@ -602,6 +891,11 @@ func (q districtQuery) UpdateAll(ctx context.Context, exec boil.ContextExecutor,
 	}
 
 	return rowsAff, nil
+}
+
+// UpdateAllG updates all rows with the specified column values.
+func (o DistrictSlice) UpdateAllG(ctx context.Context, cols M) (int64, error) {
+	return o.UpdateAll(ctx, boil.GetContextDB(), cols)
 }
 
 // UpdateAll updates all rows with the specified column values, using an executor.
@@ -650,6 +944,11 @@ func (o DistrictSlice) UpdateAll(ctx context.Context, exec boil.ContextExecutor,
 		return 0, errors.Wrap(err, "models: unable to retrieve rows affected all in update all district")
 	}
 	return rowsAff, nil
+}
+
+// UpsertG attempts an insert, and does an update or ignore on conflict.
+func (o *District) UpsertG(ctx context.Context, updateOnConflict bool, conflictColumns []string, updateColumns, insertColumns boil.Columns) error {
+	return o.Upsert(ctx, boil.GetContextDB(), updateOnConflict, conflictColumns, updateColumns, insertColumns)
 }
 
 // Upsert attempts an insert using an executor, and does an update or ignore on conflict.
@@ -768,6 +1067,12 @@ func (o *District) Upsert(ctx context.Context, exec boil.ContextExecutor, update
 	return o.doAfterUpsertHooks(ctx, exec)
 }
 
+// DeleteG deletes a single District record.
+// DeleteG will match against the primary key column to find the record to delete.
+func (o *District) DeleteG(ctx context.Context) (int64, error) {
+	return o.Delete(ctx, boil.GetContextDB())
+}
+
 // Delete deletes a single District record with an executor.
 // Delete will match against the primary key column to find the record to delete.
 func (o *District) Delete(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
@@ -804,6 +1109,10 @@ func (o *District) Delete(ctx context.Context, exec boil.ContextExecutor) (int64
 	return rowsAff, nil
 }
 
+func (q districtQuery) DeleteAllG(ctx context.Context) (int64, error) {
+	return q.DeleteAll(ctx, boil.GetContextDB())
+}
+
 // DeleteAll deletes all matching rows.
 func (q districtQuery) DeleteAll(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
 	if q.Query == nil {
@@ -823,6 +1132,11 @@ func (q districtQuery) DeleteAll(ctx context.Context, exec boil.ContextExecutor)
 	}
 
 	return rowsAff, nil
+}
+
+// DeleteAllG deletes all rows in the slice.
+func (o DistrictSlice) DeleteAllG(ctx context.Context) (int64, error) {
+	return o.DeleteAll(ctx, boil.GetContextDB())
 }
 
 // DeleteAll deletes all rows in the slice, using an executor.
@@ -874,6 +1188,15 @@ func (o DistrictSlice) DeleteAll(ctx context.Context, exec boil.ContextExecutor)
 	return rowsAff, nil
 }
 
+// ReloadG refetches the object from the database using the primary keys.
+func (o *District) ReloadG(ctx context.Context) error {
+	if o == nil {
+		return errors.New("models: no District provided for reload")
+	}
+
+	return o.Reload(ctx, boil.GetContextDB())
+}
+
 // Reload refetches the object from the database
 // using the primary keys with an executor.
 func (o *District) Reload(ctx context.Context, exec boil.ContextExecutor) error {
@@ -884,6 +1207,16 @@ func (o *District) Reload(ctx context.Context, exec boil.ContextExecutor) error 
 
 	*o = *ret
 	return nil
+}
+
+// ReloadAllG refetches every row with matching primary key column values
+// and overwrites the original object slice with the newly updated slice.
+func (o *DistrictSlice) ReloadAllG(ctx context.Context) error {
+	if o == nil {
+		return errors.New("models: empty DistrictSlice provided for reload all")
+	}
+
+	return o.ReloadAll(ctx, boil.GetContextDB())
 }
 
 // ReloadAll refetches every row with matching primary key column values
@@ -913,6 +1246,11 @@ func (o *DistrictSlice) ReloadAll(ctx context.Context, exec boil.ContextExecutor
 	*o = slice
 
 	return nil
+}
+
+// DistrictExistsG checks if the District row exists.
+func DistrictExistsG(ctx context.Context, iD int) (bool, error) {
+	return DistrictExists(ctx, boil.GetContextDB(), iD)
 }
 
 // DistrictExists checks if the District row exists.

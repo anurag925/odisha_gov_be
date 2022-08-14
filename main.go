@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"odisha_gov_be/controllers"
 	"odisha_gov_be/utils"
 	"os"
 	"os/signal"
@@ -26,10 +27,12 @@ func main() {
 		// default or from config file
 		Port: *flag.Int("p", 8080, "port to run application on"),
 	}
+	flag.Parse()
 	utils.InitializeLogger()
 	utils.Logger().Info("data:", appConfig)
+	utils.InitDB()
 
-	router := gin.Default()
+	router := gin.New()
 
 	// Add a ginzap middleware, which:
 	//   - Logs all requests, like a combined access and error log.
@@ -44,6 +47,9 @@ func main() {
 	router.GET("/", func(c *gin.Context) {
 		c.String(http.StatusOK, "Welcome Gin Server")
 	})
+	districtCtrl := controllers.DistrictCtrl{}
+	router.GET("/district", districtCtrl.Get)
+	router.POST("/district", districtCtrl.Post)
 
 	srv := &http.Server{
 		Addr:    fmt.Sprintf(":%d", appConfig.Port),
@@ -53,7 +59,7 @@ func main() {
 	go func() {
 		// service connections
 		if err := srv.ListenAndServe(); err != nil {
-			utils.Logger().Fatal("unable to start server", err.Error())
+			utils.Logger().Fatal("unable to start server")
 		}
 	}()
 

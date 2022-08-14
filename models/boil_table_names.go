@@ -4,10 +4,12 @@
 package models
 
 var TableNames = struct {
+	Blocks           string
 	Districts        string
 	SchemaMigrations string
 	Users            string
 }{
+	Blocks:           "blocks",
 	Districts:        "districts",
 	SchemaMigrations: "schema_migrations",
 	Users:            "users",

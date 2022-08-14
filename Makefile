@@ -8,10 +8,16 @@ BINARY_NAME=mybinary
 BINARY_UNIX=$(BINARY_NAME)_unix
 
 # Migration parameters
-DATABASE_URL="postgres://postgres:root@localhost:5432/odisha_dev?sslmode=disable"
+DATABASE_URL="postgres://postgres:@localhost:5432/odisha_dev?sslmode=disable"
 MIGRATION_LOCATION=./db/migrations/
 GO_MIGRATE=migrate -verbose
 MIGRATE=${GO_MIGRATE} -path ${MIGRATION_LOCATION} -database ${DATABASE_URL}
+
+# SqlBoiler
+SQLBOILER=sqlboiler
+DB_CONFIG_FILE=./db/sqlboiler.toml
+DB_CONFIG_TO_USE=psql
+
 
 all: debug
 
@@ -59,8 +65,11 @@ migrate_version:
 migrate_drop:
 	${MIGRATE} drop
 
+migrate_force:
+	${MIGRATE} force ${version}
+
 models_update:
-	sqlboiler psql -c ./db/sqlboiler.toml --wipe --no-tests
+	${SQLBOILER} ${DB_CONFIG_TO_USE} -c ${DB_CONFIG_FILE}
 
 
 # Cross compilation
