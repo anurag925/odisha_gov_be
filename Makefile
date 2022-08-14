@@ -32,8 +32,7 @@ clean:
 	rm -f $(BINARY_NAME)
 	rm -f $(BINARY_UNIX)
 
-run:
-	$(GOBUILD) -o $(BINARY_NAME) -v ./...
+run: build
 	./$(BINARY_NAME)
 
 debug:
