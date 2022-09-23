@@ -12,3 +12,13 @@ add-global-variants = true
   blacklist = ["migrations", "other"]
   sslmode = "disable"
   url = "postgres://postgres:@localhost:5432/odisha_dev?sslmode=disable"
+
+[psql-dev]
+  dbname = "odisha_dev"
+  host   = "postgresql-85602-0.cloudclusters.net"
+  port   = 19564
+  user   = "anurag"
+  pass   = "#@/3@k#@ungA"
+  blacklist = ["migrations", "other"]
+  sslmode = "disable"
+  url = "postgres://anurag:#@/3@k#@ungA@postgresql-85602-0.cloudclusters.net:19564/odisha_dev?sslmode=disable"

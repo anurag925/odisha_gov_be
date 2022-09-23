@@ -8,7 +8,7 @@ BINARY_NAME=mybinary
 BINARY_UNIX=$(BINARY_NAME)_unix
 
 # Migration parameters
-DATABASE_URL="postgres://postgres:@localhost:5432/odisha_dev?sslmode=disable"
+DATABASE_URL=${DATABASE_URL}
 MIGRATION_LOCATION=./db/migrations/
 GO_MIGRATE=migrate -verbose
 MIGRATE=${GO_MIGRATE} -path ${MIGRATION_LOCATION} -database ${DATABASE_URL}
@@ -33,10 +33,10 @@ clean:
 	rm -f $(BINARY_UNIX)
 
 run: build
-	./$(BINARY_NAME)
+	./$(BINARY_NAME) -env=p -port=3000
 
 debug:
-	$(GOCMD) run ./main.go
+	$(GOCMD) run .
 
 deps:
 	$(GOGET) github.com/markbates/goth

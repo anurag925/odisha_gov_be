@@ -18,7 +18,7 @@ var (
 
 func InitDB() {
 	var err error
-	cfg = &dbConfig{URL: "postgres://postgres:@localhost:5432/odisha_dev?sslmode=disable"}
+	cfg = &dbConfig{URL: "postgres://anurag:#@/3@k#@ungA@postgresql-85602-0.cloudclusters.net:19564/odisha_dev?sslmode=disable"}
 	db, err = sql.Open("pgx", cfg.URL)
 	if err != nil {
 		Logger().Error("error opening database: ", err)
@@ -28,4 +28,5 @@ func InitDB() {
 		Logger().Error("error pinging database: ", err)
 	}
 	boil.SetDB(db)
+	boil.DebugMode = true
 }

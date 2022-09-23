@@ -28,8 +28,10 @@ var (
 func InitServer(configuration *AppConfig) *gin.Engine {
 	config = configuration
 	utils.FastLogger().Info("initlizing server...")
-	server := gin.New()
-
+	if config.Env == "p" {
+		gin.SetMode(gin.ReleaseMode)
+	}
+	server = gin.New()
 	// Add a ginzap middleware, which:
 	//   - Logs all requests, like a combined access and error log.
 	//   - Logs to stdout.
@@ -43,9 +45,6 @@ func InitServer(configuration *AppConfig) *gin.Engine {
 }
 
 func StartServer() {
-	if config.Env == "p" {
-		gin.SetMode(gin.ReleaseMode)
-	}
 	srv := &http.Server{
 		Addr:    fmt.Sprintf(":%d", config.Port),
 		Handler: server,

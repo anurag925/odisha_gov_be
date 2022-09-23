@@ -6,11 +6,9 @@ import (
 )
 
 func main() {
-	appConfig := &AppConfig{
-		Env: *flag.String("env", "d", "environment variable to use for running application"),
-		// default or from config file
-		Port: *flag.Int("port", 3000, "port to run application on"),
-	}
+	appConfig := &AppConfig{}
+	flag.StringVar(&appConfig.Env, "env", "d", "environment variable to use for running application")
+	flag.IntVar(&appConfig.Port, "port", 3000, "port to run application on")
 	flag.Parse()
 
 	// Initilization
